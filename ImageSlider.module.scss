@@ -104,7 +104,7 @@ $mobile-breakpoint: 768px;
   position: relative;
   width: $content-width;
   height: 0;
-  padding-bottom: 62.5%; // Creates a 16:10 aspect ratio
+  padding-bottom: 62.5%; // Создает соотношение сторон 16:10
   margin: 0 auto;
   overflow: hidden;
 
@@ -113,8 +113,8 @@ $mobile-breakpoint: 768px;
     top: 0;
     left: 0;
     width: 100%;
-    height: fit-content;
-    object-fit: contain;
+    height: 100%;
+    object-fit: fill;
   }
 
   @include responsive(mobile) {

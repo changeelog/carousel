@@ -121,10 +121,7 @@ const SlideLabel: React.FC<{ label: Label }> = React.memo(({ label }) => {
 
 SlideLabel.displayName = 'SlideLabel'
 
-const ImageSlider: React.FC<ImageSliderProps> = ({
-  slides,
-  className,
-}) => {
+const ImageSlider: React.FC<ImageSliderProps> = ({ slides, className }) => {
   const [currentSlide, setCurrentSlide] = useState<number>(0)
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false)
   const sliderRef = useRef<HTMLDivElement>(null)
