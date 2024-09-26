@@ -1,0 +1,359 @@
+@use 'sass:math';
+
+// Variables
+$primary-color: #000000;
+$secondary-color: #ffffff;
+$accent-color: #9b51e0;
+$transition-duration: 0.3s;
+$border-radius: 12px;
+$slider-height: 60vh;
+$content-width: 50%;
+$mobile-breakpoint: 768px;
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin transition(
+  $property: all,
+  $duration: $transition-duration,
+  $timing: cubic-bezier(0.25, 0.1, 0.25, 1)
+) {
+  transition: $property $duration $timing;
+}
+
+@mixin hover-focus {
+  &:hover,
+  &:focus-visible {
+    @content;
+  }
+}
+
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@mixin responsive($breakpoint) {
+  @if $breakpoint == desktop {
+    @media (min-width: 1200px) {
+      @content;
+    }
+  } @else if $breakpoint == laptop {
+    @media (max-width: 1199px) and (min-width: 992px) {
+      @content;
+    }
+  } @else if $breakpoint == tablet {
+    @media (max-width: 991px) and (min-width: $mobile-breakpoint) {
+      @content;
+    }
+  } @else if $breakpoint == mobile {
+    @media (max-width: #{$mobile-breakpoint - 1px}) {
+      @content;
+    }
+  }
+}
+
+// Slider
+.slider {
+  position: relative;
+  width: 100%;
+  height: $slider-height;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba($primary-color, 0.1);
+
+  @include responsive(tablet) {
+    height: 50vh;
+  }
+  @include responsive(mobile) {
+    height: 40vh;
+  }
+}
+
+// Slide
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  @include transition(opacity);
+
+  &.active {
+    opacity: 1;
+    z-index: 1;
+  }
+}
+
+.slide__screenshot {
+  position: relative;
+  width: $content-width;
+  height: 0;
+  padding-bottom: 62.5%; // Creates a 16:10 aspect ratio
+  margin: 0 auto;
+  overflow: hidden;
+
+  img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: fit-content;
+    object-fit: contain;
+  }
+
+  @include responsive(mobile) {
+    width: 100%;
+  }
+}
+
+// Label
+.slide__label {
+  position: absolute;
+  background-color: rgba($secondary-color, 0.9);
+  padding: 12px 16px;
+  border-radius: $border-radius;
+  font-size: 14px;
+  height: fit-content;
+  width: fit-content;
+  text-wrap: nowrap;
+  line-height: 1.4;
+  max-width: 20%;
+  z-index: 2;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba($primary-color, 0.1);
+  transition: transform 0.3s;
+
+  &:hover,
+  &:focus-visible {
+    transform: scale(1.05);
+  }
+
+  @include responsive(tablet) {
+    font-size: 12px;
+    max-width: 25%;
+    padding: 10px 14px;
+  }
+
+  @include responsive(mobile) {
+    display: none;
+  }
+}
+
+// Navigation
+
+%nav-button {
+  @include flex-center;
+  position: absolute;
+  background: transparent;
+  border: none;
+  color: $primary-color;
+  cursor: pointer;
+  z-index: 3;
+  @include transition(opacity);
+  outline: none;
+
+  @include hover-focus {
+    opacity: 0.9;
+  }
+}
+
+.slide__arrow_left,
+.slide__arrow_right {
+  @extend %nav-button;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: white;
+  border: 2px solid $accent-color;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-top: 2px solid $accent-color;
+    border-left: 2px solid $accent-color;
+  }
+
+  @include hover-focus {
+    background-color: rgba($accent-color, 0.1);
+  }
+
+  @include responsive(tablet) {
+    width: 40px;
+    height: 40px;
+  }
+
+  @include responsive(mobile) {
+    width: 36px;
+    height: 36px;
+    &::before {
+      width: 10px;
+      height: 10px;
+    }
+  }
+}
+
+.slide__arrow_left {
+  left: 20px;
+  &::before {
+    transform: rotate(-45deg);
+  }
+}
+
+.slide__arrow_right {
+  right: 20px;
+  &::before {
+    transform: rotate(135deg);
+  }
+}
+
+.slide__dots {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 3;
+
+  @include responsive(mobile) {
+    bottom: -25px;
+    gap: 10px;
+  }
+}
+
+.slide__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba($primary-color, 0.3);
+  border: none;
+  cursor: pointer;
+  @include transition(background-color, transform);
+  outline: none;
+
+  @include hover-focus {
+    background-color: rgba($primary-color, 0.6);
+    transform: scale(1.2);
+  }
+
+  &.active {
+    background: linear-gradient(
+      90deg,
+      $accent-color 0%,
+      darken($accent-color, 10%) 100%
+    );
+    transform: scale(1.2);
+  }
+
+  @include responsive(mobile) {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+// Accessibility
+.slide__arrow_left--hidden,
+.slide__arrow_right--hidden {
+  @include visually-hidden;
+}
+
+.slide__arrow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+
+  path {
+    vector-effect: non-scaling-stroke;
+  }
+
+  marker {
+    fill: $accent-color;
+  }
+
+  @include responsive(mobile) {
+    display: none; // Hide arrows on mobile
+  }
+}
+
+// Debug
+.slide__debug {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba($primary-color, 0.7);
+  color: $secondary-color;
+  padding: 5px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  z-index: 4;
+}
+
+// Label positions
+.slide__label_lt {
+  top: 5%;
+  left: 5%;
+}
+.slide__label_lb {
+  bottom: 5%;
+  left: 5%;
+}
+.slide__label_rt {
+  top: 5%;
+  right: 5%;
+}
+.slide__label_rb {
+  bottom: 5%;
+  right: 5%;
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.slide {
+  &.active {
+    animation: fadeIn $transition-duration ease-in-out;
+  }
+
+  &:not(.active) {
+    animation: fadeOut $transition-duration ease-in-out;
+  }
+}
